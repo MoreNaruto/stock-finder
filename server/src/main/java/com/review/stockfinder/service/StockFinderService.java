@@ -18,8 +18,10 @@ public class StockFinderService {
                 )
         );
 
+        String upperCasePrefix = prefix.toUpperCase();
+
         return companies.stream()
-                .filter(company -> company.getName().toUpperCase().startsWith(prefix.toUpperCase()))
+                .filter(company -> company.getName().toUpperCase().startsWith(upperCasePrefix))
                 .sorted(Comparator.comparing(Company::getName))
                 .collect(Collectors.toList());
     }

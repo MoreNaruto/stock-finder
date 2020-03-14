@@ -1,28 +1,20 @@
 package com.review.stockfinder.service;
 
-import com.review.stockfinder.mapper.FileMapper;
 import com.review.stockfinder.models.Company;
+import com.review.stockfinder.repository.StockFinderRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StockFinderService {
+    private StockFinderRepository repository;
+
+    public StockFinderService(StockFinderRepository repository) {
+        this.repository = repository;
+    }
+
     public List<Company> getAllCompaniesWithPrefix(String prefix) {
-        List<Company> companies = new ArrayList<>(
-                FileMapper.convertFileToListOfCompanies(
-                        List.of("static/amex.csv", "static/nasdaq.csv", "static/nyse.csv")
-                )
-        );
-
-        String upperCasePrefix = prefix.toUpperCase();
-
-        return companies.stream()
-                .filter(company -> company.getName().toUpperCase().startsWith(upperCasePrefix))
-                .sorted(Comparator.comparing(Company::getName))
-                .collect(Collectors.toList());
+        return repository.getCompaniesByPrefixName(prefix);
     }
 }

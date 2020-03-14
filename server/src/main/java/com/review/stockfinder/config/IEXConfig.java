@@ -11,7 +11,6 @@ import pl.zankowski.iextrading4j.client.IEXTradingClient;
 public class IEXConfig {
     @Bean
     public IEXCloudClient iexCloudClient(IEXProperties properties) {
-
         return IEXTradingClient.create(IEXTradingApiVersion.IEX_CLOUD_V1,
                 new IEXCloudTokenBuilder()
                         .withPublishableToken(properties.getPublishable())

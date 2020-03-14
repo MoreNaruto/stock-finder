@@ -20,7 +20,6 @@ public class FileMapper {
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
         fileNames.stream()
                 .forEach(fileName -> {
-                    Reader reader;
                     try {
                         readFile(companies, systemClassLoader, fileName);
                     } catch (IOException | URISyntaxException | CsvValidationException e) {

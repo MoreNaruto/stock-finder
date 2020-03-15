@@ -10,7 +10,7 @@ const instance = axios.create({
 export default {
     retrieveCompaniesByPrefixName: (prefix) => instance.get('stocks/find/' + prefix, {
         transformResponse: [function (data) {
-            return data;
+            return JSON.parse(data);
         }]
     }),
 }

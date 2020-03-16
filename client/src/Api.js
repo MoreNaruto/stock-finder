@@ -13,4 +13,10 @@ export default {
             return JSON.parse(data);
         }]
     }),
+
+    retrievePriceHistory: (stockSymbol) => instance.get('stocks/price/history/' + stockSymbol, {
+        transformResponse: [function (data) {
+            return JSON.parse(data);
+        }]
+    })
 }

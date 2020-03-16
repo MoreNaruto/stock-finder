@@ -12,19 +12,22 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="company in companies" v-bind:key="company">
+            <tr v-for="company in companies" v-bind:key="company" @click="createChart(company['symbol'])">
                 <td v-for="key in Object.keys(company)" v-bind:key="key">
                     {{company[key]}}
                 </td>
             </tr>
             </tbody>
         </table>
+        <canvas id="price-history-chart"></canvas>
     </div>
 </template>
 
 <script>
     import api from '../Api';
+    import Chart from 'chart.js';
 
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const StockList = {
         name: 'StockList',
         data: function () {
@@ -41,8 +44,6 @@
                     "Industry",
                     "Summary Quote"
                 ],
-                loading: true,
-                error: null
             }
         },
 
@@ -56,14 +57,37 @@
 
                 api.retrieveCompaniesByPrefixName(value)
                     .then(response => {
-                        this.$log.debug("Data loaded: ", response.data);
                         this.companies = response.data
                     })
-                    .catch(error => {
-                        this.$log.debug(error);
-                        this.error = "Failed to load companies";
-                    })
-                    .finally(() => this.loading = false)
+            },
+            createChart: function (symbol) {
+                api.retrievePriceHistory(symbol)
+                    .then(response => {
+                        const ctx = document.getElementById('price-history-chart');
+                        const priceHistory = response.data;
+
+                        const labels = priceHistory.map(priceDay => {
+                            const priceDate = new Date(priceDay['date']);
+                            return months[priceDate.getUTCMonth()] + " " + priceDate.getUTCDate();
+                        });
+
+                        const averages = priceHistory.map(priceDay => {
+                            return priceDay['average']
+                        });
+
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: symbol + " price history",
+                                        data: averages
+                                    }
+                                ]
+                            }
+                        });
+                    });
             }
         }
     };

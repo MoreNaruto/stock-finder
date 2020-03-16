@@ -27,7 +27,7 @@ public class StockFinderController {
     }
 
     @GetMapping(value = "/price/history/{symbol}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<HistoricalPrice> retrievePriceHistory(@PathVariable String symbol) {
+    public List<HistoricalPrice> getPriceHistory(@PathVariable String symbol) {
         return priceHistoryService.retrieveHistoricalPriceForStock(symbol);
     }
 }

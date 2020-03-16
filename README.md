@@ -1,7 +1,7 @@
 # Stock-finder
 
 ## How to run app
-Before you start the next steps, please go `server/src/main/resources`
+Before you start the next steps, please go to `server/src/main/resources`
 and create an `application.properties` file.
 
 Copy and paste the contents in your `application.dist.properties`

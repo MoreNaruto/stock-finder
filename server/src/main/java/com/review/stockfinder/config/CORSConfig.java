@@ -13,7 +13,6 @@ import java.util.Collections;
 @Configuration
 public class CORSConfig {
 
-    // Fix the CORS errors
     @Bean
     public FilterRegistrationBean simpleCorsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -6,8 +6,8 @@
         <table>
             <thead>
             <tr>
-                <th v-for="keys in keys" v-bind:key="keys">
-                    {{ keys }}
+                <th v-for="tableColumn in tableColumnNames" v-bind:key="tableColumn">
+                    {{ tableColumn }}
                 </th>
             </tr>
             </thead>
@@ -34,7 +34,7 @@
             return {
                 companyFieldText: "",
                 companies: [],
-                keys: [
+                tableColumnNames: [
                     "Symbol",
                     "Name",
                     "Last Sale",

@@ -1,0 +1,491 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "This is the clearstep API for our partners\n",
+    "version": "1.0.0",
+    "title": "Clearstep API",
+    "contact": {
+      "email": "engineering@clearstep.health"
+    }
+  },
+  "servers": [
+    {
+      "description": "SwaggerHub API Auto Mocking",
+      "url": "https://virtserver.swaggerhub.com/MoreNaruto/lytic-api/1.0.0"
+    },
+    {
+      "description": "Sandbox API endpoint",
+      "url": "https://api-staging.clearstep.health/v1"
+    },
+    {
+      "description": "Prod API endpoint",
+      "url": "https://api.clearstep.health/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "conversation",
+      "description": "Clearstep Conversation Endpoints"
+    }
+  ],
+  "security": [
+    {
+      "api_key": [
+        "partner"
+      ]
+    }
+  ],
+  "paths": {
+    "/complaints": {
+      "post": {
+        "tags": [
+          "conversation"
+        ],
+        "summary": "This endpoint takes in a user’s free text description of what they are feeling and returns a list of possible chief complaints for the user to choose from.",
+        "operationId": "postTextToGetComplaint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "example": "I have a severe fever and headache",
+                "description": "A description of symptoms the user is feeling. e.g. “I have had a headache and fever for the last 7 days”"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Complaint"
+                  },
+                  "description": "Array of possible complaint objects. Objects include name (string)& id  (int) properties."
+                },
+                "examples": {
+                  "fever-complaint": {
+                    "$ref": "#/components/examples/fever-complaint"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorComplaint"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/start_conversation": {
+      "post": {
+        "tags": [
+          "conversation"
+        ],
+        "summary": "This endpoint initiates a symptom checker conversation. The response includes a NextStep dictionary, which contains information about the current state of the conversation, including the next question and other messages to display to the user.",
+        "operationId": "startConversation",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StartConversation"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StartConversation"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/answer_question": {
+      "post": {
+        "tags": [
+          "conversation"
+        ],
+        "summary": "This endpoint takes in the user’s response to the current question in the conversation and returns information about the updated state of the conversation. The response is a NextStep dictionary.",
+        "operationId": "answerQuestion",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AnswerQuestion"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AnswerQuestion"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "examples": {
+      "fever-complaint": {
+        "value": {
+          "complaints": [
+            {
+              "id": 1000,
+              "name": "fever"
+            },
+            {
+              "id": 1001,
+              "name": "headache"
+            }
+          ]
+        }
+      },
+      "default-start-conversation-request": {
+        "value": {
+          "age_in_years": 21,
+          "sex": 2,
+          "complaint_id": 1631560804
+        }
+      },
+      "default-answer-question-request": {
+        "value": {
+          "conversation_id": "e54fbfaa-dab5-4278-b047-5bff6608934f",
+          "question_id": "a2cc7a93-3177-4d10-aa6f-a0528166948f",
+          "affirmed_option_ids": [
+            "123"
+          ]
+        }
+      },
+      "default-answer-question-response": {
+        "value": {
+          "next_step": {
+            "suggested_messages": [],
+            "triage": {
+              "primary_care_summary": "You have go to the urgent care immediately",
+              "primary_care_description": "Please go to urgent care for help",
+              "best_care_type": "Urgent Care",
+              "secondary_care_types": [
+                "Emergency Care",
+                "Go see your doctor"
+              ]
+            }
+          }
+        }
+      },
+      "default-start-conversation-response": {
+        "value": {
+          "conversation_id": "e54fbfaa-dab5-4278-b047-5bff6608934f",
+          "next_step": {
+            "suggested_messages": [
+              {
+                "text": "You've provided enough information",
+                "is_from_user": false
+              },
+              {
+                "text": "Thanks for that information.",
+                "is_from_user": false
+              }
+            ],
+            "question": {
+              "id": "a2cc7a93-3177-4d10-aa6f-a0528166948f",
+              "text": "Are you currently pregnant?",
+              "options": [
+                {
+                  "value": "Yes",
+                  "option_id": 123
+                },
+                {
+                  "value": "No",
+                  "option_id": 456
+                },
+                {
+                  "value": "No, but I gave birth in the last year",
+                  "option_id": 789
+                }
+              ],
+              "is_multi_select": false
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Complaint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "StartConversationRequest": {
+        "type": "object",
+        "required": [
+          "age_in_years",
+          "sex",
+          "complaint_id"
+        ],
+        "properties": {
+          "age_in_years": {
+            "type": "integer",
+            "format": "int64",
+            "description": "User's age in years"
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2",
+              "3"
+            ],
+            "description": "Sex Values:\n * 1 = male\n * 2 = female\n * 3 = other\n"
+          },
+          "complaint_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the chief complaint associated with the conversation. This must be a complaint supported by the api. Supported chief complaints can be found using the /v0/complaints endpoint"
+          }
+        }
+      },
+      "AnswerQuestionRequest": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "question_id",
+          "affirmed_option_ids"
+        ],
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique id assigned to the current conversation"
+          },
+          "question_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique id assigned to the current question being answered"
+          },
+          "affirmed_option_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of id’s representing the question options affirmed by the user for the current question"
+          }
+        }
+      },
+      "ConversationQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "options",
+          "is_multi_select"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionOption"
+            }
+          }
+        }
+      },
+      "NextStep": {
+        "description": "Dictionary encoding information about the current state of the conversation, including:<br><br>- The next question and other messages to display to the user; or<br>- A `triage` dictionary if the conversation is complete and there are triage results to display to the user.",
+        "type": "object",
+        "properties": {
+          "suggested_messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedMessage"
+            }
+          },
+          "question": {
+            "$ref": "#/components/schemas/ConversationQuestion"
+          },
+          "triage": {
+            "$ref": "#/components/schemas/Triage"
+          }
+        }
+      },
+      "QuestionOption": {
+        "type": "object",
+        "required": [
+          "value",
+          "option_id"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "option_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SuggestedMessage": {
+        "type": "object",
+        "required": [
+          "text",
+          "is_from_user"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "is_from_user": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Triage": {
+        "type": "object",
+        "properties": {
+          "primary_care_summary": {
+            "type": "string"
+          },
+          "primary_care_description": {
+            "type": "string"
+          },
+          "best_care_type": {
+            "type": "string"
+          },
+          "care_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "StartConversation": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/StartConversationRequest"
+            },
+            "examples": {
+              "default-start-conversation-request": {
+                "$ref": "#/components/examples/default-start-conversation-request"
+              }
+            }
+          }
+        },
+        "description": "Data passed in the request body should be in JSON format",
+        "required": true
+      },
+      "AnswerQuestion": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AnswerQuestionRequest"
+            },
+            "examples": {
+              "default-answer-question-request": {
+                "$ref": "#/components/examples/default-answer-question-request"
+              }
+            }
+          }
+        },
+        "description": "Data passed in the request body should be in JSON format",
+        "required": true
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Request Body Data is incorrect. Please check you request input"
+      },
+      "UnauthorizedError": {
+        "description": "API key is missing or invalid"
+      },
+      "NotFoundErrorComplaint": {
+        "description": "Can't find a valid complaint based on your input"
+      },
+      "InternalServerError": {
+        "description": "Internal Server Error"
+      },
+      "StartConversation": {
+        "description": "Response for starting conversation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "conversation_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique id assigned to the current conversation"
+                },
+                "next_step": {
+                  "$ref": "#/components/schemas/NextStep"
+                }
+              }
+            },
+            "examples": {
+              "default-start-conversation-response": {
+                "$ref": "#/components/examples/default-start-conversation-response"
+              }
+            }
+          }
+        }
+      },
+      "AnswerQuestion": {
+        "description": "Response for answering question",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "next_step": {
+                  "$ref": "#/components/schemas/NextStep"
+                }
+              }
+            },
+            "examples": {
+              "default-answer-question-response": {
+                "$ref": "#/components/examples/default-answer-question-response"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
+    }
+  }
+}
